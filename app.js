@@ -56,13 +56,11 @@ app.set("io", io);
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors(corsOptions));
-app.use(cors({
-  origin: 'https://baatacheet-frontend.vercel.app',
-}));
 
-app.use("/api/v1/user",cors(corsOptions), userRoute);
-app.use("/api/v1/chat",cors(corsOptions), chatRoute);
-app.use("/api/v1/admin",cors(corsOptions), adminRoute);
+
+app.use("/api/v1/user", userRoute);
+app.use("/api/v1/chat", chatRoute);
+app.use("/api/v1/admin", adminRoute);
 
 app.get("/", (req, res) => {
   res.send("Hello World");
