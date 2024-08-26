@@ -56,6 +56,9 @@ app.set("io", io);
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors(corsOptions));
+app.use(cors({
+  origin: 'https://baatacheet-frontend.vercel.app',
+}));
 
 app.use("/api/v1/user",cors(corsOptions), userRoute);
 app.use("/api/v1/chat",cors(corsOptions), chatRoute);
