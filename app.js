@@ -26,14 +26,13 @@ import {
 
 dotenv.config({ path: "./.env" });
 
-const mongoURI = process.env.MONGO_URI;
 const port = process.env.PORT || 3000;
 const envMode = process.env.NODE_ENV.trim() || "PRODUCTION";
 const adminSecretKey = process.env.ADMIN_SECRET_KEY || "adsasdsdfsdfsdf";
 const userSocketIDs = new Map();
 const onlineUsers = new Set();
 
-connectDB(mongoURI);
+connectDB();
 
 const app = express();
 const server = createServer(app);

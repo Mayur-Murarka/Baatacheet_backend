@@ -10,6 +10,7 @@ const cookieOptions = {
   httpOnly: true,
   secure: true,
 };
+
 const connectDB = async () => {
   try {
     const uri = process.env.MONGODB_URI;
@@ -26,6 +27,7 @@ await mongoose.connect(uri,{ dbName: "Chattu" }, {
     process.exit(1); 
   }
 };
+
 
 const sendToken = (res, user, code, message) => {
   const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
@@ -74,7 +76,6 @@ const uploadFilesToCloudinary = async (files = []) => {
 };
 
 const deletFilesFromCloudinary = async (public_ids) => {
-  // Delete files from cloudinary
 };
 
 export {
