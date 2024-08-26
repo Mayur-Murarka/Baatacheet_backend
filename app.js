@@ -56,6 +56,8 @@ app.set("io", io);
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors(corsOptions));
+app.use(cors({ origin: 'https://baatacheet-frontend-lhaftqsuz-mayur-murarkas-projects.vercel.app' }));
+
 
 
 app.use("/api/v1/user", userRoute);
