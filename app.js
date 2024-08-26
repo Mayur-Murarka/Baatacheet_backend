@@ -30,13 +30,14 @@ dotenv.config({
   path: "./.env",
 });
 
+const mongoURI = process.env.MONGO_URI;
 const port = process.env.PORT || 3000;
-const envMode = process.env.NODE_ENV || "PRODUCTION";
+const envMode = process.env.NODE_ENV.trim() || "PRODUCTION";
 const adminSecretKey = process.env.ADMIN_SECRET_KEY || "adsasdsdfsdfsdfd";
 const userSocketIDs = new Map();
 const onlineUsers = new Set();
 
-connectDB();
+connectDB(mongoURI);
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -56,9 +57,6 @@ app.set("io", io);
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors(corsOptions));
-app.use(cors({ origin: 'https://baatacheet-frontend-lhaftqsuz-mayur-murarkas-projects.vercel.app' }));
-
-
 
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/chat", chatRoute);
