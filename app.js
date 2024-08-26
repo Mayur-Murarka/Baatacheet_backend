@@ -1,74 +1,58 @@
 import express from "express";
-import { connectDB } from "./utils/features.js";
-import dotenv from "dotenv";
-import { errorMiddleware } from "./middlewares/error.js";
-import cookieParser from "cookie-parser";
-import { Server } from "socket.io";
-import { createServer } from "http";
-import { v4 as uuid } from "uuid";
 import cors from "cors";
-import { v2 as cloudinary } from "cloudinary";
-import {
-  CHAT_JOINED,
-  CHAT_LEAVED,
-  NEW_MESSAGE,
-  NEW_MESSAGE_ALERT,
-  ONLINE_USERS,
-  START_TYPING,
-  STOP_TYPING,
-} from "./constants/events.js";
-import { getSockets } from "./lib/helper.js";
-import { Message } from "./models/message.js";
-import { corsOptions } from "./constants/config.js";
-import { socketAuthenticator } from "./middlewares/auth.js";
+import { createServer } from "http";
+import { Server } from "socket.io";
+import cookieParser from "cookie-parser";
+import dotenv from "dotenv";
 
+import { connectDB } from "./utils/features.js";
+import { errorMiddleware } from "./middlewares/error.js";
 import userRoute from "./routes/user.js";
 import chatRoute from "./routes/chat.js";
 import adminRoute from "./routes/admin.js";
+import { socketAuthenticator } from "./middlewares/auth.js";
+import { getSockets } from "./lib/helper.js";
+import { Message } from "./models/message.js";
+import { corsOptions } from "./constants/config.js";
+import { 
+  CHAT_JOINED, 
+  CHAT_LEAVED, 
+  NEW_MESSAGE, 
+  NEW_MESSAGE_ALERT, 
+  ONLINE_USERS, 
+  START_TYPING, 
+  STOP_TYPING 
+} from "./constants/events.js";
 
-dotenv.config({
-  path: "./.env",
-});
+dotenv.config({ path: "./.env" });
 
 const mongoURI = process.env.MONGO_URI;
 const port = process.env.PORT || 3000;
 const envMode = process.env.NODE_ENV.trim() || "PRODUCTION";
-const adminSecretKey = process.env.ADMIN_SECRET_KEY || "adsasdsdfsdfsdfd";
+const adminSecretKey = process.env.ADMIN_SECRET_KEY || "adsasdsdfsdfsdf";
 const userSocketIDs = new Map();
 const onlineUsers = new Set();
 
 connectDB(mongoURI);
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
-
 const app = express();
 const server = createServer(app);
 const io = new Server(server, {
-  cors: corsOptions,
+  cors: {
+    origin: "https://baatacheet-frontend.vercel.app",
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
 });
-const allowedOrigins = [
-  'https://baatacheet-frontend.vercel.app'
-];
 
-
-app.set("io", io);
-
-// Using Middlewares Here
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors(corsOptions));
+
+// Apply CORS middleware for all routes
 app.use(cors({
-  origin: function (origin, callback) {
-    if (allowedOrigins.includes(origin) || !origin) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  }
+  origin: "https://baatacheet-frontend.vercel.app",
+  methods: ["GET", "POST"],
+  credentials: true,
 }));
 
 app.use("/api/v1/user", userRoute);
@@ -80,11 +64,7 @@ app.get("/", (req, res) => {
 });
 
 io.use((socket, next) => {
-  cookieParser()(
-    socket.request,
-    socket.request.res,
-    async (err) => await socketAuthenticator(err, socket, next)
-  );
+  cookieParser()(socket.request, socket.request.res, async (err) => await socketAuthenticator(err, socket, next));
 });
 
 io.on("connection", (socket) => {
@@ -110,10 +90,7 @@ io.on("connection", (socket) => {
     };
 
     const membersSocket = getSockets(members);
-    io.to(membersSocket).emit(NEW_MESSAGE, {
-      chatId,
-      message: messageForRealTime,
-    });
+    io.to(membersSocket).emit(NEW_MESSAGE, { chatId, message: messageForRealTime });
     io.to(membersSocket).emit(NEW_MESSAGE_ALERT, { chatId });
 
     try {
@@ -135,14 +112,12 @@ io.on("connection", (socket) => {
 
   socket.on(CHAT_JOINED, ({ userId, members }) => {
     onlineUsers.add(userId.toString());
-
     const membersSocket = getSockets(members);
     io.to(membersSocket).emit(ONLINE_USERS, Array.from(onlineUsers));
   });
 
   socket.on(CHAT_LEAVED, ({ userId, members }) => {
     onlineUsers.delete(userId.toString());
-
     const membersSocket = getSockets(members);
     io.to(membersSocket).emit(ONLINE_USERS, Array.from(onlineUsers));
   });
