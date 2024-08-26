@@ -50,6 +50,10 @@ const server = createServer(app);
 const io = new Server(server, {
   cors: corsOptions,
 });
+const allowedOrigins = [
+  'https://baatacheet-frontend.vercel.app'
+];
+
 
 app.set("io", io);
 
@@ -57,6 +61,15 @@ app.set("io", io);
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors(corsOptions));
+app.use(cors({
+  origin: function (origin, callback) {
+    if (allowedOrigins.includes(origin) || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
+}));
 
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/chat", chatRoute);
