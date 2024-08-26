@@ -31,7 +31,8 @@ dotenv.config({
 });
 
 const port = process.env.PORT || 3000;
-const envMode = process.env.NODE_ENV || "PRODUCTION";const adminSecretKey = process.env.ADMIN_SECRET_KEY || "adsasdsdfsdfsdfd";
+const envMode = process.env.NODE_ENV || "PRODUCTION";
+const adminSecretKey = process.env.ADMIN_SECRET_KEY || "adsasdsdfsdfsdfd";
 const userSocketIDs = new Map();
 const onlineUsers = new Set();
 
@@ -56,9 +57,9 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(cors(corsOptions));
 
-app.use("/api/v1/user", userRoute);
-app.use("/api/v1/chat", chatRoute);
-app.use("/api/v1/admin", adminRoute);
+app.use("/api/v1/user",cors(corsOptions), userRoute);
+app.use("/api/v1/chat",cors(corsOptions), chatRoute);
+app.use("/api/v1/admin",cors(corsOptions), adminRoute);
 
 app.get("/", (req, res) => {
   res.send("Hello World");
